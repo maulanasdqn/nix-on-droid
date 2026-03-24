@@ -46,6 +46,12 @@ writeScript "login" ''
     BIND_PROC_UPTIME=""
   fi
 
+  if [ -d /dev/pts ]; then
+    BIND_DEV_PTS="-b /dev/pts:/dev/pts"
+  else
+    BIND_DEV_PTS=""
+  fi
+
   exec ${installationDir}/bin/proot-static \
     -b ${installationDir}/nix:/nix \
     -b ${installationDir}/bin:/bin! \
@@ -55,6 +61,7 @@ writeScript "login" ''
     -b ${installationDir}/dev/shm:/dev/shm \
     $BIND_PROC_STAT \
     $BIND_PROC_UPTIME \
+    $BIND_DEV_PTS \
     -b /:/android \
     --link2symlink \
     --sysvipc \
