@@ -16,9 +16,12 @@ jobs:
 
       - name: Install nix
         uses: cachix/install-nix-action@v25
+
+      - name: Setup cachix
+        uses: cachix/cachix-action@v14
         with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
+          name: nix-on-droid
+          signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
 
       - name: Build bootstrap zip (aarch64)
         id: build
