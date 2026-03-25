@@ -1,0 +1,35 @@
+name: Build and release bootstrap zip
+
+on:
+  push:
+    tags:
+      - 'bootstrap-*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install nix
+        uses: cachix/install-nix-action@v25
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Build bootstrap zip (aarch64)
+        id: build
+        run: |
+          RESULT=$(nix build --no-link --print-out-paths --impure .#bootstrapZip-aarch64)
+          echo "zip_path=$RESULT/bootstrap-aarch64.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name || 'bootstrap-latest' }}
+          name: Bootstrap ${{ github.ref_name || 'latest' }}
+          files: ${{ steps.build.outputs.zip_path }}
+          make_latest: true
